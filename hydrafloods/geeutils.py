@@ -43,7 +43,7 @@ def get_geoms(img):
 
     args:
         img (ee.Image): image to get geometry from
-    
+
     returns:
         ee.Geometry: geometry of image
     """
@@ -53,7 +53,6 @@ def get_geoms(img):
 def export_image(
     image,
     region,
-    asset_id,
     description=None,
     scale=1000,
     crs="EPSG:4326",
@@ -64,7 +63,6 @@ def export_image(
     args:
         image (ee.Image): image to export
         region (ee.Geometry): region to export image
-        asset_id (str): asset ID to export image to
         description (str | None, optional): description to identify image export/
             if None then description will be random string. default = None
         scale (int, optional): resolution in meters to export image to. default = 1000
@@ -84,15 +82,14 @@ def export_image(
         pyramiding = {".default": "mean"}
 
     # set export process
-    export = ee.batch.Export.image.toAsset(
+    export = ee.batch.Export.image.toDrive(
         image,
         description=description,
-        assetId=asset_id,
+        folder='hydra',
         scale=scale,
         region=export_region,
         maxPixels=1e13,
         crs=crs,
-        pyramidingPolicy=pyramiding,
     )
     # start export process
     export.start()
@@ -228,7 +225,7 @@ def add_indices(img, indices=["mndwi"]):
 
     args:
         img (ee.Image): image to calculate indices from
-        indices (list[str], optional): list of strings of index names to calculate. 
+        indices (list[str], optional): list of strings of index names to calculate.
             can use any named index function in geeutils. default = ["mndwi"]
 
     returns:
@@ -251,9 +248,9 @@ def tile_region(region, grid_size=0.1, intersect_geom=None, contain_geom=None,ce
     args:
         region (ee.Geometry): region to create tile grid over
         grid_size (float, optional): resolution in decimal degrees to create tiles. default = 0.1
-        intersect_geom (ee.Geometry | None, optional): geometry object to filter tiles that intesect with 
+        intersect_geom (ee.Geometry | None, optional): geometry object to filter tiles that intesect with
             geometry useful for filtering tiles that are created over oceans with no data. default = None
-        contain_geom (ee.Geometry | None, optional): geometry object to filter tiles that are contained within 
+        contain_geom (ee.Geometry | None, optional): geometry object to filter tiles that are contained within
             geometry useful for filtering tiles that are only in an area. default = None
 
     returns:
@@ -336,11 +333,11 @@ def country_bbox(country_name, max_error=1000):
 
     args:
         country_name (str): US-recognized country name
-        max_error (float,optional): The maximum amount of error tolerated when 
+        max_error (float,optional): The maximum amount of error tolerated when
             performing any necessary reprojection. default = 100
 
     returns:
-        ee.Geometry: geometry of country bounding box    
+        ee.Geometry: geometry of country bounding box
     """
 
     all_countries = ee.FeatureCollection("USDOS/LSIB_SIMPLE/2017")
